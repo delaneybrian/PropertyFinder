@@ -221,7 +221,7 @@ def get_bathrooms(soup):
                     return bathrooms.string
     return None
 
-def get_property_details(content):
+def get_property_details(content, url):
     soup = BeautifulSoup(content, features='html.parser')
 
     price = get_price(soup)
@@ -244,7 +244,11 @@ def get_property_details(content):
             'bathrooms': format_string(bathrooms),
             'date': format_string(date),
             'views': format_string(views),
-            'ber': format_string(ber)}
+            'ber': format_string(ber),
+            'url': url}
 
-content = get_page(url)
-print(get_property_details(content))
+def scrape_property_link(url):
+    content = get_page(url)
+    print(get_property_details(content, url))
+
+scrape_property_link(url)
