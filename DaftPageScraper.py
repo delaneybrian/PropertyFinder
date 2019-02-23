@@ -1,14 +1,17 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-
-url = "https://www.daft.ie/cork/houses-for-sale/carrigrohane/type-e-steeplewoods-off-model-farm-road-carrigrohane-cork-1645421/"
+from FileTools import write_property_to_file
+from CoordinateFinder import get_property_cordinates
+from time import sleep
+from random import randint
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:50.0) Gecko/20100101 Firefox/50.0"
 }
 
 def get_page(url):
+    sleep(randint(1, 5))
     try:
         r = requests.get(url, headers=headers)
         if(r.status_code == 200):
@@ -19,15 +22,18 @@ def get_page(url):
         print("Error Scraping {0} : {1}".format(url, e))
 
 def format_size(value):
-    new_string = ''.join(re.findall(r'\d+.\d+', value))
-    return new_string
+    if(value is not None):
+        new_string = ''.join(re.findall(r'\d+.\d+', value))
+        return new_string
 
 def format_price(value):
-    new_string = ''.join(re.findall(r'\d+.\d+', value))
-    return new_string.replace(',', '')
+    if(value is not None):
+        new_string = ''.join(re.findall(r'\d+.\d+', value))
+        return new_string.replace(',', '')
 
 def format_string(value):
-    return value.strip()
+    if(value is not None):
+        return value.strip()
 
 def get_entered_date(soup):
 
@@ -221,10 +227,19 @@ def get_bathrooms(soup):
                     return bathrooms.string
     return None
 
+def get_code(soup):
+    property_code_link = soup.find('a', 'PropertyShortcode__link')
+
+    if (property_code_link is not None):
+        match = re.search('https:\/\/www.daft.ie\/([0-9]*)', str(property_code_link.string))
+        if match:
+            return match.group(1)
+
 def get_property_details(content, url):
     soup = BeautifulSoup(content, features='html.parser')
 
     price = get_price(soup)
+    code = get_code(soup)
     size = get_size(soup)
     address = get_address(soup)
     county = get_county(address)
@@ -236,6 +251,7 @@ def get_property_details(content, url):
     ber = get_ber_rating(soup)
 
     return {'price': format_price(price),
+            'code': format_string(code),
             'size': format_size(size),
             'address': format_string(address),
             'county': format_string(county),
@@ -248,7 +264,14 @@ def get_property_details(content, url):
             'url': url}
 
 def scrape_property_link(url):
+    print("Now Scraping {}...".format(url))
     content = get_page(url)
-    print(get_property_details(content, url))
-
-scrape_property_link(url)
+    property = get_property_details(content, url)
+    coordinates = get_property_cordinates(property["address"])
+    if coordinates is not None:
+        property["lat"] = coordinates["lat"]
+        property["lng"] = coordinates["lng"]
+    else:
+        property["lat"] = None
+        property["lng"] = None
+    write_property_to_file(property)

@@ -1,5 +1,4 @@
 import os
-import csv
 
 def write_link_to_file(link):
     cwd = os.getcwd()
@@ -10,22 +9,26 @@ def read_all_property_links():
     cwd = os.getcwd()
     with open(cwd + '/propertylinks.csv') as f:
         lines = f.readlines()
-        print(lines)
+    return lines
 
 def write_property_to_file(property_dict):
-    has_header = True
+    print(property_dict)
+    line = '{},{},{},{},{},{},{},{},{},{},{},{},{},{}'.format(
+              property_dict['price'],
+              property_dict['code'],
+              property_dict['size'],
+              property_dict['address'].replace(',',';'),
+              property_dict['county'],
+              property_dict['type'],
+              property_dict['bedrooms'],
+              property_dict['bathrooms'],
+              property_dict['date'],
+              property_dict['views'],
+              property_dict['ber'],
+              property_dict['url'],
+              property_dict['lat'],
+              property_dict['lng'])
+
     cwd = os.getcwd()
-    with open(cwd + '/properties.csv', 'r') as f:
-        if len(f.readlines()) == 0:
-            has_header = False
-
-    print(has_header)
-    with open(cwd + '/properties.csv', 'a') as f:
-        w = csv.DictWriter(f, property_dict.keys())
-        if not has_header:
-            w.writeheader()
-        w.writerow(property_dict)
-
-dict = {'test': 454, 'wond': 343}
-
-write_property_to_file(dict)
+    with open(cwd + '/prpoerties.csv','a') as fd:
+        fd.write(line + '\n')

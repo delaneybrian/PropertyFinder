@@ -13,7 +13,7 @@ start_url = "https://www.daft.ie/ireland/property-for-sale/?s%5Bsort_by%5D=date&
 base_address = "https://www.daft.ie"
 
 def get_page(url):
-    sleep(randint(1, 10))
+    sleep(randint(1, 5))
     try:
         r = requests.get(url, headers=headers)
         if(r.status_code == 200):
@@ -47,7 +47,7 @@ def get_next_link(soup):
 def start_link_scrape():
     url = start_url
     links = []
-    itrs = 0
+    count = 0
 
     while(True):
         content = get_page(url)
@@ -59,8 +59,8 @@ def start_link_scrape():
         url = get_next_link(soup)
         if(property_links is None or len(property_links) == 0):
             break
-        itrs += 1
-        if(itrs > 2):
+        count += len(property_links)
+        print(count)
+        if(count > 30000):
             break
-
-start_link_scrape()
+    return links

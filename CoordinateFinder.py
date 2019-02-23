@@ -26,18 +26,21 @@ def extract_lat_lng_data(response):
                             'lng': lng}
 
 def ensure_is_ireland(info_dict):
-    lat = info_dict['lat']
-    lng = info_dict['lng']
+    if(info_dict is not None):
+        lat = info_dict['lat']
+        lng = info_dict['lng']
 
-    if(lat > 56 or lat < 50):
-        return False
-    if(lng > -5 or lng < -11):
-        return False
-    return True
+        if(lat > 56 or lat < 50):
+            return False
+        if(lng > -5 or lng < -11):
+            return False
+        return True
+    return False
 
+def get_property_cordinates(address):
+    print("Getting cordinates for {}...".format(address))
 
-content = get_content_from_api(address)
-info_dict = extract_lat_lng_data(content)
-print(ensure_is_ireland(info_dict))
-
-print(info_dict)
+    content = get_content_from_api(address)
+    info_dict = extract_lat_lng_data(content)
+    if (ensure_is_ireland(info_dict)):
+        return info_dict
