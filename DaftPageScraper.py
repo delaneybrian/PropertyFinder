@@ -266,12 +266,13 @@ def get_property_details(content, url):
 def scrape_property_link(url):
     print("Now Scraping {}...".format(url))
     content = get_page(url)
-    property = get_property_details(content, url)
-    coordinates = get_property_cordinates(property["address"])
-    if coordinates is not None:
-        property["lat"] = coordinates["lat"]
-        property["lng"] = coordinates["lng"]
-    else:
-        property["lat"] = None
-        property["lng"] = None
-    write_property_to_file(property)
+    if content is not None:
+        property = get_property_details(content, url)
+        coordinates = get_property_cordinates(property["address"])
+        if coordinates is not None:
+            property["lat"] = coordinates["lat"]
+            property["lng"] = coordinates["lng"]
+        else:
+            property["lat"] = None
+            property["lng"] = None
+        write_property_to_file(property)
